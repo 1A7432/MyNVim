@@ -1,0 +1,7 @@
+{
+    "windsurf.enableConfig": {
+        "*": true,
+        "chinese": true
+    },
+    "windsurf.enableModelBasedAutoExecution": true
+}
