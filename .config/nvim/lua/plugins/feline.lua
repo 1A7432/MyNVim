@@ -1,5 +1,5 @@
 return {
-  'freddiehaddad/feline.nvim',
+  'famiu/feline.nvim',
   dependencies = { 
     "EdenEast/nightfox.nvim",
     "SmiteshP/nvim-navic",
