@@ -1,7 +1,12 @@
 return {
   "coder/claudecode.nvim",
   dependencies = { "folke/snacks.nvim" },
-  config = true,
+  config = function()
+    require("claudecode").setup({
+      -- 启用自动保存以确保 Claude Code 能读取最新更改
+      auto_save = true,
+    })
+  end,
   keys = {
     { "<leader>a", nil, desc = "AI/Claude Code" },
     { "<leader>ac", "<cmd>ClaudeCode<cr>", desc = "Toggle Claude" },
