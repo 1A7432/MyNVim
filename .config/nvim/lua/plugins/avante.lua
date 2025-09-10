@@ -56,17 +56,20 @@ return {
         endpoint = "https://api.nekro.ai/v1", -- nekro.ai 代理 Claude
         model = "claude-sonnet-4-20250514-thinking", -- Claude 4 Sonnet
         timeout = 30000,
-        temperature = 0.75,
-        max_tokens = 20480,
-        api_key_name = "OPENAI_API_KEY", -- 使用 OPENAI_API_KEY 环境变量
+        extra_request_body = {
+          temperature = 0.75,
+          max_tokens = 20480,
+        },
       },
-      -- Moonshot 作为备用 provider，需要手动切换
+      -- Moonshot 作为备用 provider
       moonshot = {
         endpoint = "https://api.moonshot.cn/v1",
         model = "kimi-k2-0905-preview",
         timeout = 30000,
-        temperature = 0.6,
-        max_tokens = 256000,
+        extra_request_body = {
+          temperature = 0.6,
+          max_tokens = 128000,
+        },
       },
     },
 
