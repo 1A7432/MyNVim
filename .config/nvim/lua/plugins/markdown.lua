@@ -2,7 +2,10 @@
 return {
   {
     "MeanderingProgrammer/render-markdown.nvim",
+    ft = { "markdown", "Avante" }, -- 支持 Avante 文件类型
     opts = {
+      -- 支持的文件类型
+      file_types = { "markdown", "Avante" },
       -- 启用渲染
       enabled = true,
       
