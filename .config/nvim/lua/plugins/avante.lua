@@ -45,18 +45,20 @@ return {
   },
   opts = {
     ---@alias Provider "claude" | "openai" | "azure" | "gemini" | "cohere" | "copilot" | string
-    provider = "openai", -- 默认使用 openai provider (通过 nekro.ai 访问 Claude)
-    auto_suggestions_provider = "openai", -- 自动建议也使用 openai
+    provider = "nekro", -- 默认使用 nekro provider (访问 Claude 4)
+    auto_suggestions_provider = "nekro", -- 自动建议也使用 nekro
 
     -- AI 提供商配置
     providers = {
-      -- 使用 openai provider 配置第三方 API
-      openai = {  -- 必须使用 "openai" 作为名称
+      -- 自定义 nekro provider，继承自 openai
+      nekro = {
+        __inherited_from = "openai", -- 继承 openai 的所有功能
         endpoint = "https://api.nekro.ai/v1", -- nekro.ai 代理 Claude
         model = "claude-sonnet-4-20250514-thinking", -- Claude 4 Sonnet
         timeout = 30000,
         temperature = 0.75,
         max_tokens = 20480,
+        api_key_name = "OPENAI_API_KEY", -- 使用 OPENAI_API_KEY 环境变量
       },
       -- Moonshot 作为备用 provider，需要手动切换
       moonshot = {
@@ -234,13 +236,7 @@ return {
     },
 
     -- 模型和提供商切换
-    {
-      "<leader>am",
-      function()
-        require("avante.api").switch_provider()
-      end,
-      desc = "切换 AI 模型",
-    },
+    -- 注意：使用 <leader>a? 来选择模型（内置映射）
     {
       "<leader>aN",
       function()
