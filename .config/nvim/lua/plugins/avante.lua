@@ -45,28 +45,26 @@ return {
   },
   opts = {
     ---@alias Provider "claude" | "openai" | "azure" | "gemini" | "cohere" | "copilot" | string
-    provider = "openai", -- 使用 openai provider 配置 (通过 nekro.ai 访问 Claude)
-    auto_suggestions_provider = "moonshot", -- 自动建议提供商
+    provider = "openai", -- 默认使用 openai provider (通过 nekro.ai 访问 Claude)
+    auto_suggestions_provider = "openai", -- 自动建议也使用 openai
 
     -- AI 提供商配置
     providers = {
+      -- 使用 openai provider 配置第三方 API
       openai = {
-        endpoint = "https://api.nekro.ai/v1",  -- 使用 nekro.ai 代理访问 Claude
-        model = "claude-sonnet-4-20250514-thinking", -- 使用最新的 Claude 4 Sonnet
-        timeout = 30000, -- 超时 30 秒
-        extra_request_body = {
-          temperature = 0.75,
-          max_tokens = 20480, -- Claude 4 支持更大的 token 数
-        },
-      },
-      moonshot = {
-        endpoint = "https://api.moonshot.cn/v1",  -- 修正: moonshot.cn 不是 .ai
-        model = "kimi-k2-0905-preview", -- 使用月之暗面的 Kimi 模型
+        endpoint = "https://api.nekro.ai/v1", -- nekro.ai 代理 Claude
+        model = "claude-sonnet-4-20250514-thinking", -- Claude 4 Sonnet
         timeout = 30000,
-        extra_request_body = {
-          temperature = 0.6,  -- 与你的 curl 保持一致
-          max_tokens = 128000,
-        },
+        temperature = 0.75,
+        max_tokens = 20480,
+      },
+      -- Moonshot 作为备用 provider，需要手动切换
+      moonshot = {
+        endpoint = "https://api.moonshot.cn/v1",
+        model = "kimi-k2-0905-preview",
+        timeout = 30000,
+        temperature = 0.6,
+        max_tokens = 256000,
       },
     },
 
