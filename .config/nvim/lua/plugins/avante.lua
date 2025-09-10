@@ -45,14 +45,14 @@ return {
   },
   opts = {
     ---@alias Provider "claude" | "openai" | "azure" | "gemini" | "cohere" | "copilot" | string
-    provider = "claude", -- 默认使用 Claude
-    auto_suggestions_provider = "claude", -- 自动建议提供商
-    
+    provider = "openai", -- 使用 openai provider 配置 (通过 nekro.ai 访问 Claude)
+    auto_suggestions_provider = "moonshot", -- 自动建议提供商
+
     -- AI 提供商配置
     providers = {
-      claude = {
-        endpoint = "https://api.anthropic.com",
-        model = "claude-sonnet-4-20250514", -- 使用最新的 Claude 4 Sonnet
+      openai = {
+        endpoint = "https://api.nekro.ai/v1",  -- 使用 nekro.ai 代理访问 Claude
+        model = "claude-sonnet-4-20250514-thinking", -- 使用最新的 Claude 4 Sonnet
         timeout = 30000, -- 超时 30 秒
         extra_request_body = {
           temperature = 0.75,
@@ -60,16 +60,16 @@ return {
         },
       },
       moonshot = {
-        endpoint = "https://api.moonshot.ai/v1",
+        endpoint = "https://api.moonshot.cn/v1",  -- 修正: moonshot.cn 不是 .ai
         model = "kimi-k2-0905-preview", -- 使用月之暗面的 Kimi 模型
         timeout = 30000,
         extra_request_body = {
-          temperature = 0.75,
-          max_tokens = 32768,
+          temperature = 0.6,  -- 与你的 curl 保持一致
+          max_tokens = 128000,
         },
       },
     },
-    
+
     -- 行为配置
     behaviour = {
       auto_suggestions = false, -- 暂时禁用自动建议（实验性功能）
@@ -79,7 +79,7 @@ return {
       support_paste_from_clipboard = true, -- 支持剪贴板粘贴
       minimize_diff = true, -- 应用代码块时移除未更改的行
     },
-    
+
     -- 快捷键映射配置
     mappings = {
       --- @class AvanteConflictMappings
@@ -122,7 +122,7 @@ return {
         close = { "<Esc>", "q" },
       },
     },
-    
+
     -- 窗口配置
     windows = {
       position = "right", -- 侧边栏位置：right | left | top | bottom
@@ -148,49 +148,117 @@ return {
         focus_on_apply = "ours", -- 应用后聚焦哪个差异："ours" | "theirs"
       },
     },
-    
+
     -- 选择配置
     selection = {
       enabled = true,
       hint_display = "delayed",
     },
-    
+
     -- 项目指令文件配置
     instructions_file = "avante.md", -- 项目根目录的指令文件
-    
+
     -- 输入提供程序配置
     input = {
       provider = "dressing", -- 使用 dressing.nvim 提供增强的输入 UI
       provider_opts = {},
     },
-    
+
     -- 文件选择器配置
     selector = {
       provider = "telescope", -- native | fzf_lua | mini_pick | snacks | telescope
       provider_opts = {},
     },
   },
-  
+
   -- 中文友好的快捷键配置
   keys = {
     { "<leader>a", "", desc = "🤖 AI 助手" },
-    { "<leader>aa", function() require("avante.api").ask() end, desc = "AI 对话", mode = { "n", "v" } },
-    { "<leader>ar", function() require("avante.api").refresh() end, desc = "刷新对话" },
-    { "<leader>ae", function() require("avante.api").edit() end, desc = "编辑代码", mode = "v" },
-    { "<leader>af", function() require("avante").toggle() end, desc = "切换侧边栏" },
-    { "<leader>ac", function() require("avante").toggle.clear_history() end, desc = "清除历史" },
-    { "<leader>as", function() require("avante").toggle.suggestion() end, desc = "切换建议" },
-    
+    {
+      "<leader>aa",
+      function()
+        require("avante.api").ask()
+      end,
+      desc = "AI 对话",
+      mode = { "n", "v" },
+    },
+    {
+      "<leader>ar",
+      function()
+        require("avante.api").refresh()
+      end,
+      desc = "刷新对话",
+    },
+    {
+      "<leader>ae",
+      function()
+        require("avante.api").edit()
+      end,
+      desc = "编辑代码",
+      mode = "v",
+    },
+    {
+      "<leader>af",
+      function()
+        require("avante").toggle()
+      end,
+      desc = "切换侧边栏",
+    },
+    {
+      "<leader>ac",
+      function()
+        require("avante").toggle.clear_history()
+      end,
+      desc = "清除历史",
+    },
+    {
+      "<leader>as",
+      function()
+        require("avante").toggle.suggestion()
+      end,
+      desc = "切换建议",
+    },
+
     -- 文件管理快捷键
-    { "<leader>ab", function() require("avante.api").add_current_buffer() end, desc = "添加当前缓冲区" },
-    { "<leader>aB", function() require("avante.api").add_all_buffers() end, desc = "添加所有缓冲区" },
-    
+    {
+      "<leader>ab",
+      function()
+        require("avante.api").add_current_buffer()
+      end,
+      desc = "添加当前缓冲区",
+    },
+    {
+      "<leader>aB",
+      function()
+        require("avante.api").add_all_buffers()
+      end,
+      desc = "添加所有缓冲区",
+    },
+
     -- 模型和提供商切换
-    { "<leader>am", function() require("avante.api").switch_provider() end, desc = "切换 AI 模型" },
-    { "<leader>aN", function() require("avante.api").new_chat() end, desc = "新对话" },
-    { "<leader>ah", function() require("avante.api").history() end, desc = "对话历史" },
+    {
+      "<leader>am",
+      function()
+        require("avante.api").switch_provider()
+      end,
+      desc = "切换 AI 模型",
+    },
+    {
+      "<leader>aN",
+      function()
+        require("avante.api").new_chat()
+      end,
+      desc = "新对话",
+    },
+    {
+      "<leader>ah",
+      function()
+        require("avante.api").history()
+      end,
+      desc = "对话历史",
+    },
   },
-  
+
   -- 确保在 colorscheme 之后加载
   config = function(_, opts)
     require("avante").setup(opts)
