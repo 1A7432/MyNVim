@@ -51,7 +51,7 @@ return {
     -- AI 提供商配置
     providers = {
       -- 使用 openai provider 配置第三方 API
-      openai = {
+      openai = {  -- 必须使用 "openai" 作为名称
         endpoint = "https://api.nekro.ai/v1", -- nekro.ai 代理 Claude
         model = "claude-sonnet-4-20250514-thinking", -- Claude 4 Sonnet
         timeout = 30000,
