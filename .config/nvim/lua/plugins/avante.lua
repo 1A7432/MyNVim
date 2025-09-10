@@ -52,11 +52,11 @@ return {
     providers = {
       claude = {
         endpoint = "https://api.anthropic.com",
-        model = "claude-3-5-sonnet-20241022", -- 使用最新的 Claude 3.5 Sonnet
+        model = "claude-sonnet-4-20250514", -- 使用最新的 Claude 4 Sonnet
         timeout = 30000, -- 超时 30 秒
         extra_request_body = {
           temperature = 0.75,
-          max_tokens = 4096,
+          max_tokens = 20480, -- Claude 4 支持更大的 token 数
         },
       },
       moonshot = {
