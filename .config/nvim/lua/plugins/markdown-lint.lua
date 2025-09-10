@@ -16,7 +16,7 @@ return {
         ["markdownlint-cli2"] = {
           args = {
             "--config",
-            vim.fn.expand("~/.markdownlintrc"),
+            vim.fn.stdpath("config") .. "/.markdownlintrc",
             "--",
           },
         },

@@ -1,0 +1,47 @@
+# Markdownlint 配置文件
+# 禁用一些过于严格的规则
+
+# 默认启用所有规则
+default: true
+
+# 禁用特定规则
+MD013: false  # 行长度限制
+MD033: false  # 允许内联 HTML
+MD041: false  # 第一行必须是顶级标题
+MD034: false  # 允许裸露的 URL
+MD036: false  # 允许强调用作标题
+MD024: false  # 允许重复的标题
+MD026: false  # 允许标题以标点符号结尾
+MD029: false  # 有序列表项前缀
+MD030: false  # 列表标记后的空格数
+MD040: false  # 代码块应该有语言指定
+MD046: false  # 代码块样式
+
+# 自定义规则参数
+MD007:
+  indent: 2  # 无序列表缩进
+
+MD009:
+  br_spaces: 2  # 行尾空格数
+
+MD010:
+  code_blocks: false  # 代码块中允许制表符
+
+MD012:
+  maximum: 1  # 最大连续空行数
+
+MD022:
+  lines_above: 1
+  lines_below: 1  # 标题上下空行
+
+MD025:
+  front_matter_title: ""  # front matter 中的标题字段
+
+MD031:
+  list_items: false  # 列表项中的代码块不需要空行包围
+
+MD032:
+  single: false  # 列表周围不需要空行
+
+MD035:
+  style: "---"  # 水平线样式
