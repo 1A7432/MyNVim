@@ -10,17 +10,9 @@ vim.g.mapleader = " "
 
 -- 在 macOS 上设置按键映射
 if vim.fn.has("mac") == 1 then
-  -- 在普通模式下的映射
-  vim.keymap.set("n", "y", '"+y', { noremap = true })
-  vim.keymap.set("n", "Y", '"+Y', { noremap = true })
-  vim.keymap.set("n", "p", '"+p', { noremap = true })
-  vim.keymap.set("n", "P", '"+P', { noremap = true })
-
-  -- 在可视模式下的映射
-  vim.keymap.set("v", "y", '"+y', { noremap = true })
-  vim.keymap.set("v", "Y", '"+Y', { noremap = true })
-  vim.keymap.set("v", "p", '"+p', { noremap = true })
-  vim.keymap.set("v", "P", '"+P', { noremap = true })
+  -- 由于已设置 clipboard=unnamedplus，y/p 默认就是系统剪贴板
+  -- 避免重复映射导致的循环调用，改为显式的额外快捷键
+  
 
   -- 全选映射
   vim.keymap.set("n", "<C-a>", "ggVG", { noremap = true })

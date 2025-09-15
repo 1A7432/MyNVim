@@ -18,9 +18,9 @@ return {
     "folke/snacks.nvim",
     "nvim-tree/nvim-web-devicons",
     {
-      -- 支持图片粘贴
+      -- 支持图片粘贴（仅限 Markdown 和 Avante 文件）
       "HakonHarnes/img-clip.nvim",
-      event = "VeryLazy",
+      ft = { "markdown", "avante" }, -- 仅在指定文件类型加载
       opts = {
         -- 推荐设置
         default = {
@@ -29,8 +29,18 @@ return {
           drag_and_drop = {
             insert_mode = true,
           },
-          -- Windows 用户必需
+          -- macOS 优化：优先使用 pngpaste
           use_absolute_path = true,
+        },
+        -- 仅在特定文件类型中启用
+        filetypes = {
+          markdown = {
+            url_encode_path = true,
+            template = "![]($FILE_PATH)",
+          },
+          avante = {
+            template = "![]($FILE_PATH)",
+          },
         },
       },
     },
@@ -45,8 +55,8 @@ return {
   },
   opts = {
     ---@alias Provider "claude" | "openai" | "azure" | "gemini" | "cohere" | "copilot" | string
-    provider = "nekro", -- 默认使用 nekro provider (访问 Claude 4)
-    auto_suggestions_provider = "nekro", -- 自动建议也使用 nekro
+    provider = "claude-code", -- 使用 ACP 协议连接 Claude Code CLI
+    auto_suggestions_provider = "claude-code", -- 自动建议也使用 claude-code
 
     -- AI 提供商配置
     providers = {
@@ -61,7 +71,7 @@ return {
           max_tokens = 20480,
         },
       },
-      -- Moonshot 作为备用 provider
+      -- Moonshot
       moonshot = {
         endpoint = "https://api.moonshot.cn/v1",
         model = "kimi-k2-0905-preview",
@@ -73,13 +83,44 @@ return {
       },
     },
 
+    acp_providers = {
+      ["claude-code"] = {
+        command = "claude-code-acp",
+        args = {},
+        env = {
+          NODE_NO_WARNINGS = "1",
+          -- CLAUDE_CODE_OAUTH_TOKEN = os.getenv("CLAUDE_CODE_OAUTH_TOKEN"),
+          -- ANTHROPIC_BASE_URL = os.getenv("ANTHROPIC_BASE_URL"),
+          -- ANTHROPIC_AUTH_TOKEN = os.getenv("ANTHROPIC_AUTH_TOKEN"),
+          ANTHROPIC_BASE_URL = "https://open.bigmodel.cn/api/anthropic",
+          ANTHROPIC_AUTH_TOKEN = "8e11b0d6bfc942f28f31463d629183cf.oK2oDanlMsN44e31",
+        },
+        timeout = 20000, -- 20秒超时
+      },
+      ["gemini-cli"] = {
+        command = "gemini",
+        args = { "--experimental-acp" },
+        env = {
+          NODE_NO_WARNINGS = "1",
+          GEMINI_API_KEY = os.getenv("GEMINI_API_KEY"),
+        },
+      },
+    },
+
+    -- 会话恢复配置
+    session_recovery = {
+      enabled = true, -- 启用 ACP 会话自动恢复
+      max_history_messages = 10, -- 恢复时最多保留的历史消息数
+      max_message_length = 1000, -- 单条消息最大长度
+    },
+
     -- 行为配置
     behaviour = {
       auto_suggestions = false, -- 暂时禁用自动建议（实验性功能）
       auto_set_highlight_group = true,
       auto_set_keymaps = true, -- 自动设置快捷键
       auto_apply_diff_after_generation = false,
-      support_paste_from_clipboard = true, -- 支持剪贴板粘贴
+      support_paste_from_clipboard = false, -- 禁用以避免与 unnamedplus 冲突
       minimize_diff = true, -- 应用代码块时移除未更改的行
     },
 
@@ -159,7 +200,7 @@ return {
     },
 
     -- 项目指令文件配置
-    instructions_file = "avante.md", -- 项目根目录的指令文件
+    instructions_file = "AGENTS.md", -- 项目根目录的指令文件
 
     -- 输入提供程序配置
     input = {
