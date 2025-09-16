@@ -81,6 +81,14 @@ return {
           max_tokens = 128000,
         },
       },
+      -- xAI Grok
+      xai = {
+        timeout = 30000,
+        extra_request_body = {
+          temperature = 0.2, -- 低温度确保代码生成的准确性和确定性
+          max_tokens = 32768, -- 支持更长的代码生成，最大 256k tokens
+        },
+      },
     },
 
     acp_providers = {
