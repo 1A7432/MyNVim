@@ -125,7 +125,7 @@ return {
 
     -- 行为配置
     behaviour = {
-      auto_suggestions = false, -- 禁用自动建议，避免与 LazyVim LSP 补全冲突
+      auto_suggestions = false,
       auto_set_highlight_group = true,
       auto_set_keymaps = true, -- 自动设置快捷键
       auto_apply_diff_after_generation = false,
