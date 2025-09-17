@@ -13,7 +13,7 @@ return {
     --- 可选依赖
     "echasnovski/mini.pick",
     "nvim-telescope/telescope.nvim",
-    "hrsh7th/nvim-cmp", -- autocompletion for avante commands and mentions
+    "Kaiser-Yang/blink-cmp-avante", -- autocompletion for avante commands and mentions
     "ibhagwan/fzf-lua",
     "folke/snacks.nvim",
     "nvim-tree/nvim-web-devicons",
@@ -58,6 +58,9 @@ return {
     provider = "xai",
     auto_suggestions_provider = "xai",
 
+    -- 系统提示词 - 强制使用中文回复
+    system_prompt = "你是一个专业的AI编程助手。你必须始终使用中文回复用户的所有问题和请求。无论用户使用什么语言提问，你都要用中文回答。请提供清晰、准确、有用的编程建议，代码注释和说明都使用中文。",
+
     -- AI 提供商配置
     providers = {
       -- 自定义 nekro provider，继承自 openai
@@ -67,7 +70,7 @@ return {
         model = "claude-sonnet-4-20250514-thinking", -- Claude 4 Sonnet
         timeout = 30000,
         extra_request_body = {
-          temperature = 0.75,
+          temperature = 0.7,
           max_tokens = 20480,
         },
       },
@@ -77,7 +80,7 @@ return {
         model = "kimi-k2-0905-preview",
         timeout = 30000,
         extra_request_body = {
-          temperature = 0.6,
+          temperature = 0.5,
           max_tokens = 128000,
         },
       },
@@ -85,7 +88,7 @@ return {
       xai = {
         timeout = 30000,
         extra_request_body = {
-          temperature = 0.2, -- 低温度确保代码生成的准确性和确定性
+          temperature = 0.3, -- 低温度确保代码生成的准确性和确定性
           max_tokens = 32768, -- 支持更长的代码生成，最大 256k tokens
         },
       },
@@ -122,7 +125,7 @@ return {
 
     -- 行为配置
     behaviour = {
-      auto_suggestions = false, -- 暂时禁用自动建议（实验性功能）
+      auto_suggestions = false, -- 禁用自动建议，避免与 LazyVim LSP 补全冲突
       auto_set_highlight_group = true,
       auto_set_keymaps = true, -- 自动设置快捷键
       auto_apply_diff_after_generation = false,

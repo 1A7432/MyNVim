@@ -20,3 +20,9 @@ if vim.fn.has("mac") == 1 then
     cache_enabled = 0, -- 禁用缓存以避免重复读取问题
   }
 end
+
+-- 全局状态栏配置 - 允许views完全折叠
+vim.opt.laststatus = 3
+
+-- 设置 LazyVim 补全引擎为 blink.cmp
+vim.g.lazyvim_cmp = "blink.cmp"
