@@ -55,8 +55,8 @@ return {
   },
   opts = {
     ---@alias Provider "claude" | "openai" | "azure" | "gemini" | "cohere" | "copilot" | string
-    provider = "claude-code", -- 使用 ACP 协议连接 Claude Code CLI
-    auto_suggestions_provider = "claude-code", -- 自动建议也使用 claude-code
+    provider = "xai",
+    auto_suggestions_provider = "xai",
 
     -- AI 提供商配置
     providers = {
@@ -100,8 +100,6 @@ return {
           -- CLAUDE_CODE_OAUTH_TOKEN = os.getenv("CLAUDE_CODE_OAUTH_TOKEN"),
           -- ANTHROPIC_BASE_URL = os.getenv("ANTHROPIC_BASE_URL"),
           -- ANTHROPIC_AUTH_TOKEN = os.getenv("ANTHROPIC_AUTH_TOKEN"),
-          ANTHROPIC_BASE_URL = "https://open.bigmodel.cn/api/anthropic",
-          ANTHROPIC_AUTH_TOKEN = "8e11b0d6bfc942f28f31463d629183cf.oK2oDanlMsN44e31",
         },
         timeout = 20000, -- 20秒超时
       },
@@ -220,6 +218,28 @@ return {
     selector = {
       provider = "telescope", -- native | fzf_lua | mini_pick | snacks | telescope
       provider_opts = {},
+    },
+
+    -- RAG Service 配置
+    rag_service = {
+      enabled = true, -- 启用RAG服务
+      host_mount = os.getenv("HOME"), -- 挂载用户主目录
+      runner = "docker", -- 使用docker运行器（OrbStack兼容）
+      llm = { -- RAG服务的语言模型配置
+        provider = "openai",
+        endpoint = "https://api.nekro.ai",
+        api_key = "NEKRO_API_KEY", -- 环境变量名称
+        model = "deepseek-v3-250324",
+        extra = nil,
+      },
+      embed = { -- RAG服务的嵌入模型配置
+        provider = "openai",
+        endpoint = "https://api.nekro.ai",
+        api_key = "NEKRO_API_KEY", -- 环境变量名称
+        model = "text-embedding-v3",
+        extra = nil,
+      },
+      docker_extra_args = "", -- Docker额外参数
     },
   },
 
