@@ -7,11 +7,10 @@ return {
   -- 使用 make 构建
   build = "make",
   dependencies = {
-    "stevearc/dressing.nvim",
     "nvim-lua/plenary.nvim",
     "MunifTanjim/nui.nvim",
     --- 可选依赖
-    "echasnovski/mini.pick",
+    "nvim-mini/mini.pick",
     "nvim-telescope/telescope.nvim",
     "Kaiser-Yang/blink-cmp-avante", -- autocompletion for avante commands and mentions
     "ibhagwan/fzf-lua",
@@ -213,13 +212,13 @@ return {
 
     -- 输入提供程序配置
     input = {
-      provider = "dressing", -- 使用 dressing.nvim 提供增强的输入 UI
+      provider = "snacks", -- 使用 snacks.nvim 提供增强的输入 UI
       provider_opts = {},
     },
 
     -- 文件选择器配置
     selector = {
-      provider = "telescope", -- native | fzf_lua | mini_pick | snacks | telescope
+      provider = "fzf_lua", -- native | fzf_lua | mini_pick | snacks | telescope
       provider_opts = {},
     },
 

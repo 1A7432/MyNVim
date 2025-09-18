@@ -76,7 +76,7 @@ return {
     "rmagatti/auto-session",
     enabled = false, -- 默认禁用，可与persistence.nvim二选一
     dependencies = {
-      "nvim-telescope/telescope.nvim", -- 可选，用于会话选择
+      "ibhagwan/fzf-lua", -- 可选，用于会话选择
     },
     opts = {
       log_level = "error",
