@@ -1,4 +1,14 @@
 return {
+  -- 安装并配置 nvim-python-venv（从 GitHub 仓库）
+  {
+    "1A7432/nvim-python-venv",
+    ft = "python",
+    config = function()
+      require("nvim-python-venv").setup()
+    end,
+  },
+
+  -- LSP 配置，保留原有 pyright 与 ruff 设置
   {
     "neovim/nvim-lspconfig",
     opts = {
@@ -10,9 +20,9 @@ return {
               analysis = {
                 autoSearchPaths = true,
                 useLibraryCodeForTypes = true,
-              }
-            }
-          }
+              },
+            },
+          },
         },
         ruff = {
           cmd_env = { RUFF_TRACE = "messages" },

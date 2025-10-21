@@ -54,7 +54,7 @@ return {
   },
   opts = {
     ---@alias Provider "claude" | "openai" | "azure" | "gemini" | "cohere" | "copilot" | string
-    provider = "xai",
+    provider = "claude-code",
     auto_suggestions_provider = "xai",
 
     -- 系统提示词 - 强制使用中文回复
@@ -100,8 +100,8 @@ return {
         env = {
           NODE_NO_WARNINGS = "1",
           -- CLAUDE_CODE_OAUTH_TOKEN = os.getenv("CLAUDE_CODE_OAUTH_TOKEN"),
-          -- ANTHROPIC_BASE_URL = os.getenv("ANTHROPIC_BASE_URL"),
-          -- ANTHROPIC_AUTH_TOKEN = os.getenv("ANTHROPIC_AUTH_TOKEN"),
+          ANTHROPIC_BASE_URL = os.getenv("ANTHROPIC_BASE_URL"),
+          ANTHROPIC_AUTH_TOKEN = os.getenv("ANTHROPIC_AUTH_TOKEN"),
         },
         timeout = 20000, -- 20秒超时
       },
@@ -115,12 +115,18 @@ return {
       },
     },
 
+
     -- 会话恢复配置
     session_recovery = {
       enabled = true, -- 启用 ACP 会话自动恢复
-      max_history_messages = 10, -- 恢复时最多保留的历史消息数
+      max_history_messages = 20, -- 恢复时最多保留的历史消息数
       max_message_length = 1000, -- 单条消息最大长度
+      include_history_count = 15, -- 会话恢复时包含的消息数
+      truncate_history = true, -- 默认截断历史，避免超出ACP上下文限制
     },
+
+    -- 调试配置
+    debug = true, -- 启用调试日志
 
     -- 行为配置
     behaviour = {

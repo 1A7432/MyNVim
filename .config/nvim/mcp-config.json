@@ -1,0 +1,19 @@
+{
+  "servers": {
+    "fetch": {
+      "command": "uvx",
+      "args": ["mcp-server-fetch"]
+    },
+    "kimi-search": {
+      "command": "npx",
+      "args": ["-y", "@1a7432/kimi-search-mcp"],
+      "env": {
+        "MOONSHOT_API_KEY": "${env:MOONSHOT_API_KEY}"
+      }
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"]
+    }
+  }
+}
