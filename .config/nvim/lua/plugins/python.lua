@@ -13,8 +13,7 @@ return {
     "neovim/nvim-lspconfig",
     opts = {
       servers = {
-        pyright = {
-          -- 让 Mason 自动处理路径，不指定 cmd
+        basedpyright = {
           settings = {
             python = {
               analysis = {
@@ -24,6 +23,7 @@ return {
             },
           },
         },
+        pyright = false,
         ruff = {
           cmd_env = { RUFF_TRACE = "messages" },
           init_options = {
