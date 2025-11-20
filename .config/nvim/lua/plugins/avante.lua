@@ -54,7 +54,7 @@ return {
   },
   opts = {
     ---@alias Provider "claude" | "openai" | "azure" | "gemini" | "cohere" | "copilot" | string
-    provider = "claude-code",
+    provider = "glm",
     auto_suggestions_provider = "xai",
 
     -- 系统提示词 - 强制使用中文回复
@@ -91,6 +91,18 @@ return {
           max_tokens = 32768, -- 支持更长的代码生成，最大 256k tokens
         },
       },
+      -- GLM-4.6 智谱AI
+      glm = {
+        __inherited_from = "openai",
+        endpoint = "https://open.bigmodel.cn/api/coding/paas/v4",
+        model = "GLM-4.6",
+        api_key_name = "GLM_API_KEY",
+        timeout = 30000,
+        extra_request_body = {
+          temperature = 0.7,
+          max_tokens = 8192,
+        },
+      },
     },
 
     acp_providers = {
@@ -99,9 +111,11 @@ return {
         args = {},
         env = {
           NODE_NO_WARNINGS = "1",
-          -- CLAUDE_CODE_OAUTH_TOKEN = os.getenv("CLAUDE_CODE_OAUTH_TOKEN"),
+          -- 使用你的自定义环境变量
+          ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_AUTH_TOKEN"), -- 映射你的 token 到 API_KEY
           ANTHROPIC_BASE_URL = os.getenv("ANTHROPIC_BASE_URL"),
-          ANTHROPIC_AUTH_TOKEN = os.getenv("ANTHROPIC_AUTH_TOKEN"),
+          ACP_PATH_TO_CLAUDE_CODE_EXECUTABLE = vim.fn.exepath("claude"),
+          ACP_PERMISSION_MODE = "bypassPermissions",
         },
         timeout = 20000, -- 20秒超时
       },
