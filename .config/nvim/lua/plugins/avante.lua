@@ -54,7 +54,7 @@ return {
   },
   opts = {
     ---@alias Provider "claude" | "openai" | "azure" | "gemini" | "cohere" | "copilot" | string
-    provider = "glm",
+    provider = "ikun", -- 默认使用 ikun.cc 中转站的 Claude Sonnet 4.5
     auto_suggestions_provider = "xai",
 
     -- 系统提示词 - 强制使用中文回复
@@ -62,6 +62,31 @@ return {
 
     -- AI 提供商配置
     providers = {
+      -- ikun.cc 中转站 - Claude Sonnet 4.5 (使用 Anthropic 原生接口)
+      ikun = {
+        __inherited_from = "claude", -- 继承 Claude 原生接口
+        endpoint = "https://api.ikuncode.cc", -- ikun.cc 中转站地址(更稳定)
+        api_key_name = "ANTHROPIC_AUTH_TOKEN", -- 使用 zshrc 中的 token
+        model = "claude-sonnet-4-5-20250929", -- Claude Sonnet 4.5
+        timeout = 60000, -- 60秒超时
+      },
+      -- ikun.cc 中转站 - GPT-5.1 Codex Max (使用 OpenAI 接口)
+      ["ikun-gpt"] = {
+        __inherited_from = "openai", -- 继承 OpenAI 接口
+        endpoint = "https://api.ikuncode.cc/v1", -- OpenAI 接口需要 /v1 路径
+        api_key_name = "IKUN_OPENAI_API_KEY", -- 使用单独的 OpenAI key
+        model = "gpt-5.1-codex-max", -- GPT-5.1 Codex Max (支持 128k 输出)
+        timeout = 120000, -- 120秒超时,给长输出足够时间
+        -- 不设置 temperature 和 max_tokens,使用模型默认值(遵循 Codex 源码设计)
+      },
+      -- ikun.cc 中转站 - GPT-5 High (使用 OpenAI 接口)
+      ["ikun-gpt5"] = {
+        __inherited_from = "openai", -- 继承 OpenAI 接口
+        endpoint = "https://api.ikuncode.cc/v1", -- OpenAI 接口需要 /v1 路径
+        api_key_name = "IKUN_OPENAI_API_KEY", -- 使用单独的 OpenAI key
+        model = "gpt-5.1", -- GPT-5 High
+        timeout = 60000, -- 60秒超时
+      },
       -- 自定义 nekro provider，继承自 openai
       nekro = {
         __inherited_from = "openai", -- 继承 openai 的所有功能
@@ -88,7 +113,6 @@ return {
         timeout = 30000,
         extra_request_body = {
           temperature = 0.3, -- 低温度确保代码生成的准确性和确定性
-          max_tokens = 32768, -- 支持更长的代码生成，最大 256k tokens
         },
       },
       -- GLM-4.6 智谱AI
@@ -98,10 +122,6 @@ return {
         model = "GLM-4.6",
         api_key_name = "GLM_API_KEY",
         timeout = 30000,
-        extra_request_body = {
-          temperature = 0.7,
-          max_tokens = 8192,
-        },
       },
     },
 
@@ -128,7 +148,6 @@ return {
         },
       },
     },
-
 
     -- 会话恢复配置
     session_recovery = {
