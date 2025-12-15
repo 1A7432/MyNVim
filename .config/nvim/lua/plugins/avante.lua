@@ -159,7 +159,7 @@ return {
     },
 
     -- 调试配置
-    debug = true, -- 启用调试日志
+    debug = false, -- 关闭调试日志，使用普通消息级别
 
     -- 行为配置
     behaviour = {
