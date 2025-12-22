@@ -111,9 +111,6 @@ return {
       -- xAI Grok
       xai = {
         timeout = 30000,
-        extra_request_body = {
-          temperature = 0.3, -- 低温度确保代码生成的准确性和确定性
-        },
       },
       -- GLM-4.6 智谱AI
       glm = {
@@ -163,7 +160,7 @@ return {
 
     -- 行为配置
     behaviour = {
-      auto_suggestions = false,
+      auto_suggestions = false, -- 关闭自动补全，使用 neocodeium 代替
       auto_set_highlight_group = true,
       auto_set_keymaps = true, -- 自动设置快捷键
       auto_apply_diff_after_generation = false,

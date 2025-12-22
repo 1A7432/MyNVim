@@ -31,8 +31,18 @@ function M.run_in_float(cmd, opts)
     title_pos = "center",
   }
 
+  -- 在命令末尾添加 shell，让终端保持打开
+  -- 用户可以使用 j/k 滚动查看输出，使用 q 或 :q 关闭窗口
+  local wrapped_cmd
+  if type(cmd) == "string" then
+    wrapped_cmd = cmd .. "; exec $SHELL"
+  else
+    -- 如果是数组形式的命令，需要用 shell 包装
+    wrapped_cmd = table.concat(cmd, " ") .. "; exec $SHELL"
+  end
+
   -- 执行命令
-  snacks.terminal(cmd, {
+  snacks.terminal(wrapped_cmd, {
     win = win_opts,
     cwd = opts.cwd,
     env = opts.env,

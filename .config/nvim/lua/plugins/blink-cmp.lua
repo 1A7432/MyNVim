@@ -8,6 +8,9 @@ return {
   opts = {
     -- 关键的键映射配置
     keymap = {
+      -- 禁用 Ctrl-Y（留给 neocodeium 使用）
+      ['<C-y>'] = {},
+
       -- 补全菜单导航
       ['<Tab>'] = {
         function(cmp)
