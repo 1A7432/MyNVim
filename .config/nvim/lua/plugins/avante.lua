@@ -148,7 +148,7 @@ return {
 
     -- 会话恢复配置
     session_recovery = {
-      enabled = true, -- 启用 ACP 会话自动恢复
+      enabled = false, -- 临时禁用会话恢复，解决无限循环重复问题
       max_history_messages = 20, -- 恢复时最多保留的历史消息数
       max_message_length = 1000, -- 单条消息最大长度
       include_history_count = 15, -- 会话恢复时包含的消息数
@@ -156,7 +156,7 @@ return {
     },
 
     -- 调试配置
-    debug = false, -- 关闭调试日志，使用普通消息级别
+    debug = true, -- 启用调试日志，帮助诊断重复内容问题
 
     -- 行为配置
     behaviour = {
