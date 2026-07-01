@@ -57,7 +57,6 @@ return {
       -- 复选框配置 - 启用
       checkbox = {
         enabled = true,
-        position = "inline",
         unchecked = {
           icon = "󰄱 ",
           highlight = "RenderMarkdownUnchecked",
@@ -88,11 +87,11 @@ return {
       },
       
       -- 表格
-      table = {
+      pipe_table = {
         enabled = true,
         preset = "round",
         alignment_indicator = "─",
-        highlight = "RenderMarkdownTableHead",
+        head = "RenderMarkdownTableHead",
       },
       
       -- Callout 配置

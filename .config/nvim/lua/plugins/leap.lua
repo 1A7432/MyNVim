@@ -1,6 +1,7 @@
 return {
   {
-    "ggandor/leap.nvim",
+    "https://codeberg.org/andyg/leap.nvim.git",
+    name = "leap.nvim",
     enabled = true,
     keys = {
       { "s", mode = { "n", "x", "o" }, desc = "Leap forward to" },

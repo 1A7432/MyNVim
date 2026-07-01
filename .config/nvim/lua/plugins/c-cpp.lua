@@ -11,11 +11,8 @@ return {
     opts = {
       cmake_command = "cmake",
       cmake_build_directory = "build",
-      cmake_build_directory_prefix = "",
       cmake_generate_options = { "-DCMAKE_EXPORT_COMPILE_COMMANDS=1" },
       cmake_build_options = {},
-      cmake_soft_link_compile_commands = true,
-      cmake_compile_commands_from_lsp = false,
       cmake_kits_path = nil,
       cmake_dap_configuration = {
         name = "cpp",

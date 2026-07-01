@@ -18,6 +18,7 @@ return {
             "--config",
             vim.fn.stdpath("config") .. "/.markdownlint.yaml",
             "--",
+            "-",
           },
         },
       },

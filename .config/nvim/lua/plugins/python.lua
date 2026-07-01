@@ -18,10 +18,9 @@ return {
       -- 默认使用 basedpyright，禁用 pyright
       opts.servers.basedpyright = vim.tbl_deep_extend("force", opts.servers.basedpyright or {}, {
         settings = {
-          python = {
+          basedpyright = {
             analysis = {
               autoSearchPaths = true,
-              useLibraryCodeForTypes = true,
             },
           },
         },

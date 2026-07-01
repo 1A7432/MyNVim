@@ -11,11 +11,10 @@ return {
         zls = {
           settings = {
             zls = {
-              enable_autofix = false,
+              force_autofix = false,
               enable_snippets = true,
               warn_style = true,
               enable_build_on_save = false,
-              build_on_save_step = "check",
               -- 使用 zig 安装的标准库路径
               zig_lib_path = vim.fn.system("zig env | jq -r .lib_dir"):gsub("\n", ""),
             },
