@@ -79,3 +79,40 @@ vim.api.nvim_create_autocmd("InsertLeave", {
 --     end
 --   end,
 -- })
+
+-- 透明背景设置
+local transparency_group = vim.api.nvim_create_augroup("TransparentBackground", { clear = true })
+
+-- 在主题加载后强制应用透明背景
+vim.api.nvim_create_autocmd("ColorScheme", {
+  group = transparency_group,
+  callback = function()
+    -- 主窗口透明
+    vim.api.nvim_set_hl(0, "Normal", { bg = "NONE", ctermbg = "NONE" })
+    vim.api.nvim_set_hl(0, "NormalNC", { bg = "NONE", ctermbg = "NONE" })
+    vim.api.nvim_set_hl(0, "NormalFloat", { bg = "NONE", ctermbg = "NONE" })
+    vim.api.nvim_set_hl(0, "FloatBorder", { bg = "NONE", ctermbg = "NONE" })
+
+    -- 侧边栏透明 (NeoTree)
+    vim.api.nvim_set_hl(0, "NeoTreeNormal", { bg = "NONE", ctermbg = "NONE" })
+    vim.api.nvim_set_hl(0, "NeoTreeNormalNC", { bg = "NONE", ctermbg = "NONE" })
+
+    -- 符号列透明
+    vim.api.nvim_set_hl(0, "SignColumn", { bg = "NONE", ctermbg = "NONE" })
+    vim.api.nvim_set_hl(0, "LineNr", { bg = "NONE", ctermbg = "NONE" })
+    vim.api.nvim_set_hl(0, "CursorLineNr", { bg = "NONE", ctermbg = "NONE" })
+    vim.api.nvim_set_hl(0, "FoldColumn", { bg = "NONE", ctermbg = "NONE" })
+
+    -- Git 符号透明
+    vim.api.nvim_set_hl(0, "GitSignsAdd", { bg = "NONE", ctermbg = "NONE" })
+    vim.api.nvim_set_hl(0, "GitSignsChange", { bg = "NONE", ctermbg = "NONE" })
+    vim.api.nvim_set_hl(0, "GitSignsDelete", { bg = "NONE", ctermbg = "NONE" })
+
+    -- Telescope 透明
+    vim.api.nvim_set_hl(0, "TelescopeNormal", { bg = "NONE", ctermbg = "NONE" })
+    vim.api.nvim_set_hl(0, "TelescopeBorder", { bg = "NONE", ctermbg = "NONE" })
+
+    -- 通知窗口透明 (如果你想要的话)
+    vim.api.nvim_set_hl(0, "NotifyBackground", { bg = "NONE", ctermbg = "NONE" })
+  end,
+})

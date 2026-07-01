@@ -54,7 +54,7 @@ return {
   },
   opts = {
     ---@alias Provider "claude" | "openai" | "azure" | "gemini" | "cohere" | "copilot" | string
-    provider = "ikun", -- 默认使用 ikun.cc 中转站的 Claude Sonnet 4.5
+    provider = "claude-code", -- 默认走 ACP 的 Claude Code (订阅登录); 切回中转用 :AvanteSwitchProvider 选 ikun
     auto_suggestions_provider = "xai",
 
     -- 系统提示词 - 强制使用中文回复
@@ -62,12 +62,12 @@ return {
 
     -- AI 提供商配置
     providers = {
-      -- ikun.cc 中转站 - Claude Sonnet 4.5 (使用 Anthropic 原生接口)
+      -- ikun.cc 中转站 - Claude Sonnet 4.6 (使用 Anthropic 原生接口)
       ikun = {
         __inherited_from = "claude", -- 继承 Claude 原生接口
         endpoint = "https://api.ikuncode.cc", -- ikun.cc 中转站地址(更稳定)
         api_key_name = "ANTHROPIC_AUTH_TOKEN", -- 使用 zshrc 中的 token
-        model = "claude-sonnet-4-5-20250929", -- Claude Sonnet 4.5
+        model = "claude-sonnet-4-6", -- Claude Sonnet 4.6 (如中转站暂不支持可回退 claude-sonnet-4-5-20250929)
         timeout = 60000, -- 60秒超时
       },
       -- ikun.cc 中转站 - GPT-5.1 Codex Max (使用 OpenAI 接口)
@@ -87,17 +87,6 @@ return {
         model = "gpt-5.1", -- GPT-5 High
         timeout = 60000, -- 60秒超时
       },
-      -- 自定义 nekro provider，继承自 openai
-      nekro = {
-        __inherited_from = "openai", -- 继承 openai 的所有功能
-        endpoint = "https://api.nekro.ai/v1", -- nekro.ai 代理 Claude
-        model = "claude-sonnet-4-20250514-thinking", -- Claude 4 Sonnet
-        timeout = 30000,
-        extra_request_body = {
-          temperature = 0.7,
-          max_tokens = 20480,
-        },
-      },
       -- Moonshot
       moonshot = {
         endpoint = "https://api.moonshot.cn/v1",
@@ -112,11 +101,11 @@ return {
       xai = {
         timeout = 30000,
       },
-      -- GLM-4.6 智谱AI
+      -- GLM-5.1 智谱AI
       glm = {
         __inherited_from = "openai",
         endpoint = "https://open.bigmodel.cn/api/coding/paas/v4",
-        model = "GLM-4.7",
+        model = "glm-5.1",
         api_key_name = "GLM_API_KEY",
         timeout = 30000,
       },
@@ -124,13 +113,13 @@ return {
 
     acp_providers = {
       ["claude-code"] = {
-        command = "claude-code-acp",
+        command = "claude-agent-acp",
         args = {},
         env = {
           NODE_NO_WARNINGS = "1",
-          -- 使用你的自定义环境变量
-          ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_AUTH_TOKEN"), -- 映射你的 token 到 API_KEY
-          ANTHROPIC_BASE_URL = os.getenv("ANTHROPIC_BASE_URL"),
+          -- 走 Claude Code 自身的订阅登录: 不注入 ANTHROPIC_API_KEY/BASE_URL, 避免被打到中转/按 API 计费
+          -- 注意: 若 shell 里全局 export 了 ANTHROPIC_API_KEY 或 ANTHROPIC_AUTH_TOKEN, 会泄漏进子进程强制走 API 模式;
+          --       需确保未全局导出, 且 `claude` 已用订阅 /login
           ACP_PATH_TO_CLAUDE_CODE_EXECUTABLE = vim.fn.exepath("claude"),
           ACP_PERMISSION_MODE = "bypassPermissions",
         },
@@ -156,7 +145,7 @@ return {
     },
 
     -- 调试配置
-    debug = true, -- 启用调试日志，帮助诊断重复内容问题
+    debug = false, -- 普通日志级别
 
     -- 行为配置
     behaviour = {
@@ -244,7 +233,8 @@ return {
     },
 
     -- 项目指令文件配置
-    instructions_file = "AGENTS.md", -- 项目根目录的指令文件
+    -- instructions_file = "AGENTS.md", -- 暂时禁用以避免重复拼接 bug
+    instructions_file = nil, -- 禁用项目指令文件（避免重复拼接 bug）
 
     -- 输入提供程序配置
     input = {
@@ -260,7 +250,7 @@ return {
 
     -- RAG Service 配置
     rag_service = {
-      enabled = true, -- 启用RAG服务
+      enabled = false, -- 已禁用: 依赖的 nekro 中转不可用, deepseek-v3-250324 模型也已下线; 换可用 provider 后再开启
       host_mount = os.getenv("HOME"), -- 挂载用户主目录
       runner = "docker", -- 使用docker运行器（OrbStack兼容）
       llm = { -- RAG服务的语言模型配置
