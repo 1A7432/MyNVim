@@ -8,10 +8,18 @@ return {
 
     -- 配置 neocodeium
     neocodeium.setup({
-      enabled = true,
+      enabled = false, -- 2026-07-14 停用:后端已随 Devin 收购晃动(2026-06 认证断过一次,见 upstream issues);补全改走 avante auto_suggestions + xai grok-build-0.1,本插件留作备胎
       manual = false,
       debounce = true,
       show_label = true,
+
+      -- 在 avante 的对话/输入 buffer 里禁用 ghost text,避免与 avante 冲突
+      filetypes = {
+        Avante = false,
+        AvanteInput = false,
+        AvantePromptInput = false,
+        AvanteSelectedFiles = false,
+      },
 
       -- 当 blink.cmp 菜单可见时隐藏建议
       filter = function()

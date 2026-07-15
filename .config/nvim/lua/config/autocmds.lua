@@ -22,22 +22,6 @@ vim.api.nvim_create_autocmd("VimEnter", {
   nested = true,
 })
 
--- 在离开Vim时保存会话
-vim.api.nvim_create_autocmd("VimLeavePre", {
-  group = session_group,
-  callback = function()
-    require("persistence").save()
-  end,
-})
-
--- 当切换目录时创建新的会话
-vim.api.nvim_create_autocmd("DirChanged", {
-  group = session_group,
-  callback = function()
-    require("persistence").save()
-  end,
-})
-
 -- 输入法自动切换
 local input_method_group = vim.api.nvim_create_augroup("InputMethodSwitch", { clear = true })
 

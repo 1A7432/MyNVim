@@ -140,8 +140,8 @@ return {
             close = { "q", "<Esc>" },
           },
         },
-        windows = { indent = 1 },
         render = {
+          indent = 1,
           max_type_length = nil,
           max_value_lines = 100,
         },

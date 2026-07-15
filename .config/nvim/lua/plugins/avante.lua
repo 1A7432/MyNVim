@@ -2,7 +2,6 @@
 return {
   "yetone/avante.nvim",
   event = "VeryLazy",
-  lazy = false,
   version = false, -- 不要设为 "*"
   -- 使用 make 构建
   build = "make",
@@ -19,7 +18,7 @@ return {
     {
       -- 支持图片粘贴（仅限 Markdown 和 Avante 文件）
       "HakonHarnes/img-clip.nvim",
-      ft = { "markdown", "avante" }, -- 仅在指定文件类型加载
+      ft = { "markdown", "Avante" }, -- 仅在指定文件类型加载
       opts = {
         -- 推荐设置
         default = {
@@ -37,7 +36,7 @@ return {
             url_encode_path = true,
             template = "![]($FILE_PATH)",
           },
-          avante = {
+          Avante = {
             template = "![]($FILE_PATH)",
           },
         },
@@ -54,8 +53,19 @@ return {
   },
   opts = {
     ---@alias Provider "claude" | "openai" | "azure" | "gemini" | "cohere" | "copilot" | string
-    provider = "claude-code", -- 默认走 ACP 的 Claude Code (订阅登录); 切回中转用 :AvanteSwitchProvider 选 ikun
+    -- 侧边栏默认走 DeepSeek (HTTP provider): 无 ACP 子进程 = 无进程泄漏/无 generating 卡死。
+    -- 【重要】HTTP provider 不读 AGENTS.md、不认 .claude/settings.json 的 deny 禁写:
+    --   教练/真活(zig-mini-redis 等)一律走 CLI `cd <proj> && claude`,不要在此侧边栏上课。
+    -- 想用订阅额度跑 agentic: :AvanteSwitchProvider 选 claude-code(ACP 配置保留在 acp_providers)
+    provider = "deepseek",
     auto_suggestions_provider = "xai",
+
+    -- legacy: 答完即停,无 agentic 自动循环。
+    -- 【为什么】agentic 模式一个回合只在模型调用 attempt_completion 时才结束;非 Claude 模型
+    --   经常写完正文却不调那个工具 → avante 注入"You should use attempt_completion"反复催 →
+    --   agent 像开了 goal 模式一样无限循环(zig_gemini 会话实测 146 条消息全在这个死循环里)。
+    --   侧边栏只做问答/教学,不需要自动改代码,legacy 正合适;要 agentic 就用 CLI `claude`。
+    mode = "legacy",
 
     -- 系统提示词 - 强制使用中文回复
     system_prompt = "你是一个专业的AI编程助手。你必须始终使用中文回复用户的所有问题和请求。无论用户使用什么语言提问，你都要用中文回答。请提供清晰、准确、有用的编程建议，代码注释和说明都使用中文。",
@@ -90,15 +100,12 @@ return {
       -- Moonshot
       moonshot = {
         endpoint = "https://api.moonshot.cn/v1",
-        model = "kimi-k2-0905-preview",
+        model = "kimi-k2.7-code",
         timeout = 30000,
-        extra_request_body = {
-          temperature = 0.5,
-          max_tokens = 128000,
-        },
       },
       -- xAI Grok
       xai = {
+        model = "grok-build-0.1", -- 补全/建议模型($1/$2, 100+TPS, 256K);质量优先可换 "grok-4.5"($2/$6, 更慢);grok-code-fast-1 已弃用 2026-08-15 退役,勿用
         timeout = 30000,
       },
       -- GLM-5.1 智谱AI
@@ -109,30 +116,49 @@ return {
         api_key_name = "GLM_API_KEY",
         timeout = 30000,
       },
+      -- DeepSeek(侧边栏默认): key 在 zshrc $DEEPSEEK_API_KEY。
+      -- V4 世代仅两档(老 deepseek-chat/reasoner 别名已废): pro=强, flash=快而更省。
+      deepseek = {
+        __inherited_from = "openai",
+        endpoint = "https://api.deepseek.com",
+        model = "deepseek-v4-pro", -- 侧边栏嫌慢/省钱可换 "deepseek-v4-flash"(两者都是推理模型)
+        api_key_name = "DEEPSEEK_API_KEY",
+        timeout = 30000,
+      },
     },
 
     acp_providers = {
       ["claude-code"] = {
+        -- 官方适配器 claude-agent-acp,内嵌现役 agent-sdk 0.3.197。
+        -- 勿切 zed 家的 claude-code-acp 0.10.3:它内嵌 2025-10 的旧引擎(claude-code 2.0.37),
+        -- 模型列表是化石(Sonnet 4.5/Opus 4.1 年代)。
+        -- 【实测 2026-07-14】ACP_PERMISSION_MODE / ACP_PATH_TO_CLAUDE_CODE_EXECUTABLE 两个适配器都不读,
+        -- 是历史死变量,已清除。权限模式只能会话内切:<leader>am 选 bypassPermissions
+        -- ——default 模式下工具权限确认弹窗易被错过,表现为永远 generating(卡死病根)。
+        -- 模型选择:用各项目 .claude/settings.json 的 "model" 字段(SDK 会读),不在这里配。
         command = "claude-agent-acp",
         args = {},
         env = {
           NODE_NO_WARNINGS = "1",
-          -- 走 Claude Code 自身的订阅登录: 不注入 ANTHROPIC_API_KEY/BASE_URL, 避免被打到中转/按 API 计费
-          -- 注意: 若 shell 里全局 export 了 ANTHROPIC_API_KEY 或 ANTHROPIC_AUTH_TOKEN, 会泄漏进子进程强制走 API 模式;
-          --       需确保未全局导出, 且 `claude` 已用订阅 /login
-          ACP_PATH_TO_CLAUDE_CODE_EXECUTABLE = vim.fn.exepath("claude"),
-          ACP_PERMISSION_MODE = "bypassPermissions",
+          -- 订阅结算: SDK/node 进程读不到 claude CLI 写的钥匙串条目(ACL 只认创建者),
+          -- 用 `claude setup-token` 的长效 OAuth token(仍订阅计费)喂给子进程;
+          -- token 在 ~/.config/claude/acp_oauth_token(chmod 600, 单独一行)。
+          -- 注意: 全局 export ANTHROPIC_API_KEY/ANTHROPIC_AUTH_TOKEN 会泄漏进子进程强制走 API 计费
+          CLAUDE_CODE_OAUTH_TOKEN = (vim.fn.filereadable(vim.fn.expand("~/.config/claude/acp_oauth_token")) == 1)
+              and vim.fn.readfile(vim.fn.expand("~/.config/claude/acp_oauth_token"))[1]
+            or nil,
         },
         timeout = 20000, -- 20秒超时
       },
-      ["gemini-cli"] = {
-        command = "gemini",
-        args = { "--experimental-acp" },
-        env = {
-          NODE_NO_WARNINGS = "1",
-          GEMINI_API_KEY = os.getenv("GEMINI_API_KEY"),
-        },
+      -- Grok Build(原生 ACP,不需要适配器):吃 SuperGrok 订阅的周用量池,先 `grok login`。
+      -- 注意:它读 AGENTS.md 但不认 .claude/settings.json 的 deny 禁写,
+      -- 在 zig-mini-redis 等教练项目里禁用(没有权限层兜底),只当通用聊天/agent 用。
+      ["grok-build"] = {
+        command = "grok",
+        args = { "agent", "stdio" },
       },
+      -- Codex 想接的话:npm i -g @zed-industries/codex-acp,且 codex 需已登录(ChatGPT 订阅)或配好 API key
+      -- ["codex"] = { command = "codex-acp", args = {} },
     },
 
     -- 会话恢复配置
@@ -149,7 +175,7 @@ return {
 
     -- 行为配置
     behaviour = {
-      auto_suggestions = false, -- 关闭自动补全，使用 neocodeium 代替
+      auto_suggestions = true, -- 内联补全走 xai grok-build-0.1(neocodeium 后端随 Devin 收购不稳,已停用留作备胎;回滚时两边一起反转)
       auto_set_highlight_group = true,
       auto_set_keymaps = true, -- 自动设置快捷键
       auto_apply_diff_after_generation = false,
@@ -159,6 +185,10 @@ return {
 
     -- 快捷键映射配置
     mappings = {
+      files = {
+        add_current = "<leader>ab",
+        add_all_buffers = "<leader>aB",
+      },
       --- @class AvanteConflictMappings
       diff = {
         ours = "co",
@@ -233,8 +263,8 @@ return {
     },
 
     -- 项目指令文件配置
-    -- instructions_file = "AGENTS.md", -- 暂时禁用以避免重复拼接 bug
-    instructions_file = nil, -- 禁用项目指令文件（避免重复拼接 bug）
+    -- Avante 当前无法用 nil 禁用该项；显式使用独立的 avante.md，避免误读 AGENTS.md。
+    instructions_file = "avante.md",
 
     -- 输入提供程序配置
     input = {
@@ -246,28 +276,6 @@ return {
     selector = {
       provider = "fzf_lua", -- native | fzf_lua | mini_pick | snacks | telescope
       provider_opts = {},
-    },
-
-    -- RAG Service 配置
-    rag_service = {
-      enabled = false, -- 已禁用: 依赖的 nekro 中转不可用, deepseek-v3-250324 模型也已下线; 换可用 provider 后再开启
-      host_mount = os.getenv("HOME"), -- 挂载用户主目录
-      runner = "docker", -- 使用docker运行器（OrbStack兼容）
-      llm = { -- RAG服务的语言模型配置
-        provider = "openai",
-        endpoint = "https://api.nekro.ai",
-        api_key = "NEKRO_API_KEY", -- 环境变量名称
-        model = "deepseek-v3-250324",
-        extra = nil,
-      },
-      embed = { -- RAG服务的嵌入模型配置
-        provider = "openai",
-        endpoint = "https://api.nekro.ai",
-        api_key = "NEKRO_API_KEY", -- 环境变量名称
-        model = "text-embedding-v3",
-        extra = nil,
-      },
-      docker_extra_args = "", -- Docker额外参数
     },
   },
 
@@ -306,9 +314,7 @@ return {
     },
     {
       "<leader>ac",
-      function()
-        require("avante").toggle.clear_history()
-      end,
+      "<cmd>AvanteClear<cr>",
       desc = "清除历史",
     },
     {
@@ -318,19 +324,35 @@ return {
       end,
       desc = "切换建议",
     },
+    {
+      "<leader>am",
+      function()
+        require("avante.api").select_acp_mode()
+      end,
+      desc = "ACP 权限模式(卡 generating 时切 bypassPermissions)",
+    },
 
     -- 文件管理快捷键
     {
       "<leader>ab",
       function()
-        require("avante.api").add_current_buffer()
+        local api = require("avante.api")
+        local sidebar = require("avante").get()
+        if not sidebar then
+          api.ask()
+          sidebar = require("avante").get()
+        end
+        if not sidebar:is_open() then
+          sidebar:open({})
+        end
+        sidebar.file_selector:add_current_buffer()
       end,
       desc = "添加当前缓冲区",
     },
     {
       "<leader>aB",
       function()
-        require("avante.api").add_all_buffers()
+        require("avante.api").add_buffer_files()
       end,
       desc = "添加所有缓冲区",
     },
@@ -339,16 +361,12 @@ return {
     -- 注意：使用 <leader>a? 来选择模型（内置映射）
     {
       "<leader>aN",
-      function()
-        require("avante.api").new_chat()
-      end,
+      "<cmd>AvanteChatNew<cr>",
       desc = "新对话",
     },
     {
       "<leader>ah",
-      function()
-        require("avante.api").history()
-      end,
+      "<cmd>AvanteHistory<cr>",
       desc = "对话历史",
     },
   },

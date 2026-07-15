@@ -15,8 +15,7 @@ return {
               enable_snippets = true,
               warn_style = true,
               enable_build_on_save = false,
-              -- 使用 zig 安装的标准库路径
-              zig_lib_path = vim.fn.system("zig env | jq -r .lib_dir"):gsub("\n", ""),
+              -- ZLS 会从 zig_exe_path 自动发现标准库；避免依赖 Zig 0.16 已改变格式的 `zig env`。
             },
           },
         },
@@ -62,30 +61,106 @@ return {
           end
 
           -- 编译运行快捷键（与 C/C++ 统一使用 <leader>r 前缀）
-          vim.keymap.set("n", "<leader>rs", with_save(zig_runner.smart_build_and_run), vim.tbl_extend("force", opts, { desc = "智能编译运行" }))
-          vim.keymap.set("n", "<leader>rf", with_save(zig_runner.compile_and_run), vim.tbl_extend("force", opts, { desc = "单文件编译运行" }))
-          vim.keymap.set("n", "<leader>rb", with_save(zig_runner.quick_compile), vim.tbl_extend("force", opts, { desc = "快速编译" }))
-          vim.keymap.set("n", "<leader>rr", with_save(zig_runner.smart_build_and_run), vim.tbl_extend("force", opts, { desc = "运行" }))
+          vim.keymap.set(
+            "n",
+            "<leader>rs",
+            with_save(zig_runner.smart_build_and_run),
+            vim.tbl_extend("force", opts, { desc = "智能编译运行" })
+          )
+          vim.keymap.set(
+            "n",
+            "<leader>rf",
+            with_save(zig_runner.compile_and_run),
+            vim.tbl_extend("force", opts, { desc = "单文件编译运行" })
+          )
+          vim.keymap.set(
+            "n",
+            "<leader>rb",
+            with_save(zig_runner.quick_compile),
+            vim.tbl_extend("force", opts, { desc = "快速编译" })
+          )
+          vim.keymap.set(
+            "n",
+            "<leader>rr",
+            with_save(zig_runner.smart_build_and_run),
+            vim.tbl_extend("force", opts, { desc = "运行" })
+          )
 
           -- Zig Build 项目快捷键（类似 CMake，使用 <leader>rc 组）
-          vim.keymap.set("n", "<leader>rcb", zig_runner.zig_build, vim.tbl_extend("force", opts, { desc = "Zig Build" }))
-          vim.keymap.set("n", "<leader>rcr", zig_runner.zig_build_run, vim.tbl_extend("force", opts, { desc = "Zig Build Run" }))
-          vim.keymap.set("n", "<leader>rct", zig_runner.zig_build_test, vim.tbl_extend("force", opts, { desc = "Zig Build Test" }))
-          vim.keymap.set("n", "<leader>rcl", zig_runner.zig_build_list, vim.tbl_extend("force", opts, { desc = "列出构建步骤" }))
+          vim.keymap.set(
+            "n",
+            "<leader>rcb",
+            zig_runner.zig_build,
+            vim.tbl_extend("force", opts, { desc = "Zig Build" })
+          )
+          vim.keymap.set(
+            "n",
+            "<leader>rcr",
+            zig_runner.zig_build_run,
+            vim.tbl_extend("force", opts, { desc = "Zig Build Run" })
+          )
+          vim.keymap.set(
+            "n",
+            "<leader>rct",
+            zig_runner.zig_build_test,
+            vim.tbl_extend("force", opts, { desc = "Zig Build Test" })
+          )
+          vim.keymap.set(
+            "n",
+            "<leader>rcl",
+            zig_runner.zig_build_list,
+            vim.tbl_extend("force", opts, { desc = "列出构建步骤" })
+          )
+          vim.keymap.set(
+            "n",
+            "<leader>rcz",
+            zig_runner.ziglings_verify,
+            vim.tbl_extend("force", opts, { desc = "Ziglings 验证" })
+          )
 
           -- 测试快捷键
-          vim.keymap.set("n", "<leader>rt", with_save(zig_runner.test_file), vim.tbl_extend("force", opts, { desc = "测试当前文件" }))
-          vim.keymap.set("n", "<leader>rT", with_save(zig_runner.test_all), vim.tbl_extend("force", opts, { desc = "运行所有测试" }))
+          vim.keymap.set(
+            "n",
+            "<leader>rt",
+            with_save(zig_runner.test_file),
+            vim.tbl_extend("force", opts, { desc = "测试当前文件" })
+          )
+          vim.keymap.set(
+            "n",
+            "<leader>rT",
+            with_save(zig_runner.test_all),
+            vim.tbl_extend("force", opts, { desc = "运行所有测试" })
+          )
 
           -- 格式化和检查
-          vim.keymap.set("n", "<leader>rF", zig_runner.format_file, vim.tbl_extend("force", opts, { desc = "格式化文件" }))
-          vim.keymap.set("n", "<leader>rk", with_save(zig_runner.check_file), vim.tbl_extend("force", opts, { desc = "检查语法" }))
+          vim.keymap.set(
+            "n",
+            "<leader>rF",
+            zig_runner.format_file,
+            vim.tbl_extend("force", opts, { desc = "格式化文件" })
+          )
+          vim.keymap.set(
+            "n",
+            "<leader>rk",
+            with_save(zig_runner.check_file),
+            vim.tbl_extend("force", opts, { desc = "检查语法" })
+          )
 
           -- 模板快捷键
-          vim.keymap.set("n", "<leader>rni", zig_template.select_and_insert, vim.tbl_extend("force", opts, { desc = "插入模板" }))
+          vim.keymap.set(
+            "n",
+            "<leader>rni",
+            zig_template.select_and_insert,
+            vim.tbl_extend("force", opts, { desc = "插入模板" })
+          )
 
           -- 版本信息
-          vim.keymap.set("n", "<leader>rv", zig_runner.show_version, vim.tbl_extend("force", opts, { desc = "Zig 版本信息" }))
+          vim.keymap.set(
+            "n",
+            "<leader>rv",
+            zig_runner.show_version,
+            vim.tbl_extend("force", opts, { desc = "Zig 版本信息" })
+          )
 
           -- 调试快捷键（与 C/C++ 统一使用 <leader>rd）
           vim.keymap.set("n", "<leader>rdd", function()
@@ -140,8 +215,8 @@ return {
     opts = function(_, opts)
       opts.ensure_installed = opts.ensure_installed or {}
       vim.list_extend(opts.ensure_installed, {
-        "zls",        -- Zig Language Server
-        "codelldb",   -- 调试器
+        "zls", -- Zig Language Server
+        "codelldb", -- 调试器
       })
     end,
   },

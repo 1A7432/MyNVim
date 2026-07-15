@@ -26,3 +26,6 @@ vim.opt.laststatus = 3
 
 -- 设置 LazyVim 补全引擎为 blink.cmp
 vim.g.lazyvim_cmp = "blink.cmp"
+
+-- Python 类型检查统一使用 Pyright。
+vim.g.lazyvim_python_lsp = "pyright"

@@ -265,13 +265,87 @@ function M.test_all()
 end
 
 -- ============================================================
+-- Ziglings 支持
+-- ============================================================
+
+-- 从当前文件向上查找 build.zig 所在目录
+-- @return string|nil 根目录路径
+function M.find_build_root()
+  local file = vim.fn.expand("%:p")
+  local dir = vim.fn.fnamemodify(file, ":h")
+  local found = vim.fs.find("build.zig", { path = dir, upward = true })[1]
+  if found then
+    return vim.fn.fnamemodify(found, ":h")
+  end
+  -- 回退到 nvim 当前工作目录
+  if M.has_build_zig() then
+    return vim.fn.getcwd()
+  end
+  return nil
+end
+
+-- 判断是否为 Ziglings 项目（build.zig 中包含 ziglings step）
+-- @param root string|nil build.zig 所在目录，默认自动查找
+-- @return boolean
+function M.is_ziglings_project(root)
+  root = root or M.find_build_root()
+  if not root then
+    return false
+  end
+  local build_zig = root .. "/build.zig"
+  if vim.fn.filereadable(build_zig) == 0 then
+    return false
+  end
+  local content = table.concat(vim.fn.readfile(build_zig), "\n")
+  return content:find("ziglings") ~= nil
+end
+
+-- 从文件名提取练习编号（001_hello.zig -> 1）
+-- @return number|nil
+function M.ziglings_exercise_number()
+  local name = vim.fn.expand("%:t")
+  local num = name:match("^(%d+)_")
+  return num and tonumber(num) or nil
+end
+
+-- Ziglings 验证：从文件名提取题号，运行 zig build -Dn=<编号>
+-- 若文件名不含编号则退回检查全部（zig build）
+function M.ziglings_verify()
+  vim.cmd("silent! write")
+
+  local root = M.find_build_root()
+  if not root then
+    vim.notify("未找到 build.zig（不是 Ziglings 项目？）", vim.log.levels.WARN)
+    return
+  end
+
+  local num = M.ziglings_exercise_number()
+  local cmd, title
+  if num then
+    cmd = string.format("zig build -Dn=%d", num)
+    title = string.format("Ziglings 验证: 第 %d 题", num)
+  else
+    cmd = "zig build"
+    title = "Ziglings 验证: 全部"
+  end
+
+  terminal.run_in_float(cmd, {
+    title = title,
+    cwd = root,
+  })
+end
+
+-- ============================================================
 -- 智能编译运行（自动检测项目类型）
 -- ============================================================
 
 -- 编译并运行（智能检测项目类型）
--- 如果有 build.zig 则使用 zig build run，否则使用单文件编译
+-- Ziglings 项目 -> zig build -Dn=<题号>；普通 build.zig -> zig build run；否则单文件
 function M.smart_build_and_run()
-  if M.has_build_zig() then
+  if M.is_ziglings_project() then
+    -- Ziglings：验证当前练习
+    M.ziglings_verify()
+  elseif M.has_build_zig() then
     -- 使用 zig build run
     M.zig_build_run()
   else

@@ -36,37 +36,17 @@ local hex = function(n)
   end
 end
 
----Parse `style` string into nvim_set_hl options
----@param style string
----@return table
-local function parse_style(style)
-  if not style or style == "NONE" then
-    return {}
-  end
-
-  local result = {}
-  for token in string.gmatch(style, "([^,]+)") do
-    result[token] = true
-  end
-
-  return result
-end
-
 ---Get highlight opts for a given highlight group name
 ---@param name string
 ---@return table
 local function get_highlight(name)
-  local hl = vim.api.nvim_get_hl_by_name(name, true)
-  if hl.link then
-    return get_highlight(hl.link)
+  local hl = vim.api.nvim_get_hl(0, { name = name, link = false })
+  for _, component in ipairs({ "fg", "bg", "sp" }) do
+    if hl[component] then
+      hl[component] = hex(hl[component])
+    end
   end
-
-  local result = parse_style(hl.style)
-  result.fg = hl.foreground and hex(hl.foreground)
-  result.bg = hl.background and hex(hl.background)
-  result.sp = hl.special and hex(hl.special)
-
-  return result
+  return hl
 end
 
 ---Set highlight group from provided table
@@ -355,7 +335,7 @@ local c = {
     left_sep = { str = icons.left_filled, hl = vi_sep_hl },
   },
   cur_percent = {
-    provider = 'line_percentage',
+    provider = "line_percentage",
     hl = vi_mode_hl,
     left_sep = { str = icons.left, hl = vi_mode_hl },
   },
@@ -365,9 +345,9 @@ local c = {
   },
   lsp_status = {
     provider = function()
-      local has_lsp = vim.tbl_count(vim.lsp.get_clients { bufnr = 0 }) > 0
+      local has_lsp = vim.tbl_count(vim.lsp.get_clients({ bufnr = 0 })) > 0
       local status = has_lsp and " ◦ " or ""
-      
+
       -- 获取 navic 位置
       if package.loaded["nvim-navic"] then
         local navic = require("nvim-navic")
@@ -378,7 +358,7 @@ local c = {
           end
         end
       end
-      
+
       return status
     end,
     hl = "UserSLStatus",

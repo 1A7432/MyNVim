@@ -10,24 +10,8 @@ return {
     opts = {
       -- 会话文件保存目录
       dir = vim.fn.stdpath("state") .. "/sessions/",
-      -- 需要保存的选项
-      options = {
-        "buffers",
-        "curdir",
-        "tabpages",
-        "winsize",
-        "help",
-        "globals",
-        "terminal",
-        "skiprtp",
-      },
-      -- 自动保存触发的事件
-      pre_save = function()
-        -- 在保存会话前关闭某些可能干扰恢复的窗口
-        vim.cmd("NvimTreeClose")
-        vim.cmd("cclose")
-        vim.cmd("lclose")
-      end,
+      need = 1,
+      branch = true,
     },
     -- 自定义键映射
     keys = {
@@ -55,7 +39,7 @@ return {
     },
     config = function(_, opts)
       require("persistence").setup(opts)
-      
+
       -- 确保会话选项包含窗口布局相关信息
       vim.opt.sessionoptions = {
         "buffers",
@@ -68,6 +52,17 @@ return {
         "winpos",
         "winsize",
       }
+
+      -- persistence.nvim 通过 User 事件提供保存前钩子。
+      vim.api.nvim_create_autocmd("User", {
+        group = vim.api.nvim_create_augroup("PersistenceHooks", { clear = true }),
+        pattern = "PersistenceSavePre",
+        callback = function()
+          vim.cmd("silent! Neotree close")
+          vim.cmd("silent! cclose")
+          vim.cmd("silent! lclose")
+        end,
+      })
     end,
   },
 

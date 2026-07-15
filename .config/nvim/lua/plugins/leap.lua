@@ -4,13 +4,9 @@ return {
     name = "leap.nvim",
     enabled = true,
     keys = {
-      { "s", mode = { "n", "x", "o" }, desc = "Leap forward to" },
-      { "S", mode = { "n", "x", "o" }, desc = "Leap backward to" },
-      { "gs", mode = { "n", "x", "o" }, desc = "Leap from windows" },
+      { "s", "<Plug>(leap-forward)", mode = { "n", "x", "o" }, desc = "向前 Leap" },
+      { "S", "<Plug>(leap-backward)", mode = { "n", "x", "o" }, desc = "向后 Leap" },
+      { "gs", "<Plug>(leap-from-window)", mode = { "n", "x", "o" }, desc = "跨窗口 Leap" },
     },
-    config = function(_, opts)
-      local leap = require("leap")
-      leap.add_default_mappings()
-    end,
   },
 }

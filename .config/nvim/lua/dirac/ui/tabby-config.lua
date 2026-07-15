@@ -36,37 +36,17 @@ local hex = function(n)
   end
 end
 
----Parse `style` string into nvim_set_hl options
----@param style string
----@return table
-local function parse_style(style)
-  if not style or style == "NONE" then
-    return {}
-  end
-
-  local result = {}
-  for token in string.gmatch(style, "([^,]+)") do
-    result[token] = true
-  end
-
-  return result
-end
-
 ---Get highlight opts for a given highlight group name
 ---@param name string
 ---@return table
 local function get_highlight(name)
-  local hl = vim.api.nvim_get_hl_by_name(name, true)
-  if hl.link then
-    return get_highlight(hl.link)
+  local hl = vim.api.nvim_get_hl(0, { name = name, link = false })
+  for _, component in ipairs({ "fg", "bg", "sp" }) do
+    if hl[component] then
+      hl[component] = hex(hl[component])
+    end
   end
-
-  local result = parse_style(hl.style)
-  result.fg = hl.foreground and hex(hl.foreground)
-  result.bg = hl.background and hex(hl.background)
-  result.sp = hl.special and hex(hl.special)
-
-  return result
+  return hl
 end
 
 ---Set highlight group from provided table
@@ -156,7 +136,7 @@ vim.api.nvim_create_autocmd({ "SessionLoadPost", "ColorScheme" }, {
 ----------------------------------------------------------------------------------------------------
 -- Feline
 
-local filename = require("tabby.filename")
+local win_name = require("tabby.feature.win_name")
 
 local cwd = function()
   return "  " .. vim.fn.fnamemodify(vim.fn.getcwd(), ":t") .. " "
@@ -192,7 +172,7 @@ local line = {
   top_win = {
     label = function(winid)
       return {
-        "  " .. filename.unique(winid) .. " ",
+        "  " .. win_name.get(winid, { mode = "unique" }) .. " ",
         hl = "TabLine",
       }
     end,
@@ -202,7 +182,7 @@ local line = {
   win = {
     label = function(winid)
       return {
-        "  " .. filename.unique(winid) .. " ",
+        "  " .. win_name.get(winid, { mode = "unique" }) .. " ",
         hl = "TabLine",
       }
     end,
