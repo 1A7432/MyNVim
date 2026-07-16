@@ -53,25 +53,36 @@ return {
   },
   opts = {
     ---@alias Provider "claude" | "openai" | "azure" | "gemini" | "cohere" | "copilot" | string
-    -- 侧边栏默认走 DeepSeek (HTTP provider): 无 ACP 子进程 = 无进程泄漏/无 generating 卡死。
-    -- 【重要】HTTP provider 不读 AGENTS.md、不认 .claude/settings.json 的 deny 禁写:
-    --   教练/真活(zig-mini-redis 等)一律走 CLI `cd <proj> && claude`,不要在此侧边栏上课。
-    -- 想用订阅额度跑 agentic: :AvanteSwitchProvider 选 claude-code(ACP 配置保留在 acp_providers)
-    provider = "deepseek",
-    auto_suggestions_provider = "xai",
+    -- 【当前默认: Claude Opus 4.8】通过 Anthropic 原生接口反代调用。
+    provider = "grok-build",
+    -- provider = "claude-opus",
+    -- auto_suggestions_provider = "xai",
 
-    -- legacy: 答完即停,无 agentic 自动循环。
-    -- 【为什么】agentic 模式一个回合只在模型调用 attempt_completion 时才结束;非 Claude 模型
-    --   经常写完正文却不调那个工具 → avante 注入"You should use attempt_completion"反复催 →
-    --   agent 像开了 goal 模式一样无限循环(zig_gemini 会话实测 146 条消息全在这个死循环里)。
-    --   侧边栏只做问答/教学,不需要自动改代码,legacy 正合适;要 agentic 就用 CLI `claude`。
-    mode = "legacy",
+    -- 【当前: agentic】avante 自带 agentic 循环 —— 用真工具自动读写文件、多步迭代(这才能真落盘)。
+    -- ⚠️ 死循环教训(保留): agentic 一个回合只在模型调用 attempt_completion 时才结束;非 Claude 模型
+    --   常写完正文却不调那个工具 → avante 注入"You should use attempt_completion"反复催 →
+    --   无限循环(zig_gemini 实测 146 条消息全困在里面)。
+    --   规避: provider 保持真 Claude(claude-opus 会正确调 attempt_completion);跑非 Claude(gpt/glm)
+    --   前先掂量这个坑。卡循环就 <C-c>/<Esc>/q 取消,或改回 mode = "legacy" 退回问答/教学。
+    mode = "agentic",
 
     -- 系统提示词 - 强制使用中文回复
-    system_prompt = "你是一个专业的AI编程助手。你必须始终使用中文回复用户的所有问题和请求。无论用户使用什么语言提问，你都要用中文回答。请提供清晰、准确、有用的编程建议，代码注释和说明都使用中文。",
+    system_prompt = "你是一个专业的 AI 编程助手。你必须始终使用中文回复用户的所有问题和请求。无论用户使用什么语言提问，你都要用中文回答。请提供清晰、准确、有用的编程建议，代码注释和说明都使用中文。",
 
     -- AI 提供商配置
     providers = {
+      -- Claude Opus 4.8 反代（Anthropic 原生接口）
+      ["claude-opus"] = {
+        __inherited_from = "claude",
+        endpoint = "https://1a7432.site/claude-avante",
+        api_key_name = "ANTHROPIC_API_KEY", -- 优先读取 AVANTE_ANTHROPIC_API_KEY
+        model = "claude-opus-4-8",
+        timeout = 120000,
+        extra_request_body = {
+          output_config = { effort = "xhigh" }, -- ← 思考强度：low/medium/high/xhigh/max
+          thinking = { type = "adaptive" }, -- ← 让思考过程能流式显示（可选）
+        },
+      },
       -- ikun.cc 中转站 - Claude Sonnet 4.6 (使用 Anthropic 原生接口)
       ikun = {
         __inherited_from = "claude", -- 继承 Claude 原生接口
@@ -103,11 +114,11 @@ return {
         model = "kimi-k2.7-code",
         timeout = 30000,
       },
-      -- xAI Grok
-      xai = {
-        model = "grok-build-0.1", -- 补全/建议模型($1/$2, 100+TPS, 256K);质量优先可换 "grok-4.5"($2/$6, 更慢);grok-code-fast-1 已弃用 2026-08-15 退役,勿用
-        timeout = 30000,
-      },
+      -- xAI Grok（已停用，保留供回滚）
+      -- xai = {
+      --   model = "grok-build-0.1",
+      --   timeout = 30000,
+      -- },
       -- GLM-5.1 智谱AI
       glm = {
         __inherited_from = "openai",
@@ -116,7 +127,7 @@ return {
         api_key_name = "GLM_API_KEY",
         timeout = 30000,
       },
-      -- DeepSeek(侧边栏默认): key 在 zshrc $DEEPSEEK_API_KEY。
+      -- DeepSeek(已注释,随时可回滚为侧边栏默认): key 在 zshrc $DEEPSEEK_API_KEY。
       -- V4 世代仅两档(老 deepseek-chat/reasoner 别名已废): pro=强, flash=快而更省。
       deepseek = {
         __inherited_from = "openai",
@@ -150,14 +161,11 @@ return {
         },
         timeout = 20000, -- 20秒超时
       },
-      -- Grok Build(原生 ACP,不需要适配器):吃 SuperGrok 订阅的周用量池,先 `grok login`。
-      -- 注意:它读 AGENTS.md 但不认 .claude/settings.json 的 deny 禁写,
-      -- 在 zig-mini-redis 等教练项目里禁用(没有权限层兜底),只当通用聊天/agent 用。
+      -- Grok Build
       ["grok-build"] = {
         command = "grok",
         args = { "agent", "stdio" },
       },
-      -- Codex 想接的话:npm i -g @zed-industries/codex-acp,且 codex 需已登录(ChatGPT 订阅)或配好 API key
       -- ["codex"] = { command = "codex-acp", args = {} },
     },
 
@@ -175,7 +183,7 @@ return {
 
     -- 行为配置
     behaviour = {
-      auto_suggestions = true, -- 内联补全走 xai grok-build-0.1(neocodeium 后端随 Devin 收购不稳,已停用留作备胎;回滚时两边一起反转)
+      auto_suggestions = false, -- 自动补全改由 neocodeium 提供
       auto_set_highlight_group = true,
       auto_set_keymaps = true, -- 自动设置快捷键
       auto_apply_diff_after_generation = false,
@@ -373,6 +381,21 @@ return {
 
   -- 确保在 colorscheme 之后加载
   config = function(_, opts)
+    -- Grok ACP 私有通知兼容补丁（已停用，保留供回滚）
+    local ok, ACPClient = pcall(require, "avante.libs.acp_client")
+    if ok and type(ACPClient) == "table" and not ACPClient.__grok_notify_patched then
+      local orig = ACPClient._handle_notification
+      if type(orig) == "function" then
+        ACPClient._handle_notification = function(self, message_id, method, params)
+          if type(method) == "string" and method:sub(1, 1) == "_" then
+            return
+          end
+          return orig(self, message_id, method, params)
+        end
+        ACPClient.__grok_notify_patched = true
+      end
+    end
+
     require("avante").setup(opts)
   end,
 }

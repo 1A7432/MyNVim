@@ -8,7 +8,7 @@ return {
 
     -- 配置 neocodeium
     neocodeium.setup({
-      enabled = false, -- 2026-07-14 停用:后端已随 Devin 收购晃动(2026-06 认证断过一次,见 upstream issues);补全改走 avante auto_suggestions + xai grok-build-0.1,本插件留作备胎
+      enabled = true, -- 使用 NeoCodeium 提供内联补全，Avante 仅保留侧边栏对话
       manual = false,
       debounce = true,
       show_label = true,
