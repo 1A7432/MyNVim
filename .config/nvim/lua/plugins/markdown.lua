@@ -2,10 +2,10 @@
 return {
   {
     "MeanderingProgrammer/render-markdown.nvim",
-    ft = { "markdown", "Avante" }, -- 支持 Avante 文件类型
+    ft = { "markdown", "codecompanion" }, -- 支持 CodeCompanion 对话缓冲区
     opts = {
       -- 支持的文件类型
-      file_types = { "markdown", "Avante" },
+      file_types = { "markdown", "codecompanion" },
       -- 启用渲染
       enabled = true,
       

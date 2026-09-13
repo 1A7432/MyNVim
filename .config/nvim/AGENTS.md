@@ -21,7 +21,7 @@
 
 - 使用 lazy.nvim 作为插件管理器
 - 支持多种编程语言：Lua、Python、Rust、Java、TypeScript 等
-- 集成了 AI 代码助手 (avante.nvim)
+- 集成了 AI 代码助手 (codecompanion.nvim)
 - 配置了 Markdown 渲染和语法检查
 - 使用中文友好的快捷键映射
 - 包含代码补全、语法高亮、文件管理等功能
@@ -31,7 +31,7 @@
 - **配置语言**: Lua
 - **插件管理**: lazy.nvim
 - **基础框架**: LazyVim
-- **AI 助手**: avante.nvim (支持 Claude 和 Moonshot)
+- **AI 助手**: codecompanion.nvim (对话走 Grok Build ACP，内联/命令走 Grok 反代)
 - **Markdown**: render-markdown.nvim + markdownlint
 - **语法高亮**: nvim-treesitter
 - **主题**: nightfox.nvim

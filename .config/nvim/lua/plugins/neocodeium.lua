@@ -8,17 +8,14 @@ return {
 
     -- 配置 neocodeium
     neocodeium.setup({
-      enabled = true, -- 使用 NeoCodeium 提供内联补全，Avante 仅保留侧边栏对话
+      enabled = true, -- 使用 NeoCodeium 提供内联补全，CodeCompanion 负责对话/编辑
       manual = false,
       debounce = true,
       show_label = true,
 
-      -- 在 avante 的对话/输入 buffer 里禁用 ghost text,避免与 avante 冲突
+      -- 在 CodeCompanion 的对话 buffer 里禁用 ghost text，避免冲突
       filetypes = {
-        Avante = false,
-        AvanteInput = false,
-        AvantePromptInput = false,
-        AvanteSelectedFiles = false,
+        codecompanion = false,
       },
 
       -- 当 blink.cmp 菜单可见时隐藏建议

@@ -1,8 +1,7 @@
--- blink.cmp configuration with avante support
+-- blink.cmp configuration
 return {
   "saghen/blink.cmp",
   dependencies = {
-    "Kaiser-Yang/blink-cmp-avante",
     "L3MON4D3/LuaSnip",
   },
   opts = {
@@ -52,30 +51,9 @@ return {
       ['<Up>'] = { 'select_prev', 'fallback' },
     },
     sources = {
-      default = { "avante", "lsp", "path", "snippets", "buffer" },
-      providers = {
-        avante = {
-          module = "blink-cmp-avante",
-          name = "Avante",
-          opts = {
-            command = {
-              get_kind_name = function(_)
-                return "AvanteCmd"
-              end,
-            },
-            mention = {
-              get_kind_name = function(_)
-                return "AvanteMention"
-              end,
-            },
-            shortcut = {
-              get_kind_name = function(_)
-                return "AvanteShortcut"
-              end,
-            },
-          },
-        },
-      },
+      -- CodeCompanion 的补全（/ 斜杠命令、# 上下文、@ 工具）由插件自己注册到 blink.cmp，
+      -- 不需要在这里加 provider。
+      default = { "lsp", "path", "snippets", "buffer" },
     },
     snippets = {
       preset = "luasnip",
