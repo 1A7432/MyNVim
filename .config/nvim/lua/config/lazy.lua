@@ -31,6 +31,10 @@ require("lazy").setup({
     version = false, -- always use the latest git commit
     -- version = "*", -- try installing the latest stable version for plugins that support semver
   },
+  -- 没有插件依赖 luarocks，关掉以免 checkhealth 报 hererocks 未安装
+  rocks = {
+    enabled = false,
+  },
   checker = {
     enabled = true, -- check for plugin updates periodically
     notify = false, -- notify on update
